@@ -1,0 +1,113 @@
+---
+title: "データの読み込みと可視化"
+author: "伊東宏樹"
+format: html
+editor: visual
+---
+
+## 準備
+
+パッケージの読み込み
+
+```{r}
+#| label: setup
+
+library(tidyverse)
+```
+
+## データ
+
+e-stat/国勢調査/時系列データ/男女，年齢，配偶関係/男女別人口及び人口性比 － 全国，都道府県（大正9年～令和2年）
+
+<https://www.e-stat.go.jp/dbview?sid=0003410379>
+
+CSV（列指向データ）をダウンロード
+
+```{r}
+#| label: read_csv
+
+data_file <- file.path("data", "FEH_00200521_241003100519.csv")
+pop_data <- read_csv(data_file,
+                     col_types = "fcfcfccccd",
+                     na = "-",
+                     locale = locale(encoding = "CP932"))
+```
+
+### 読み込みの結果
+
+```{r}
+pop_data
+```
+
+必要な部分を残す
+
+dplyrパッケージのfilter関数
+
+mutate関数
+
+`.keep = "none"` で、不要な変数を捨てる。
+
+```{r}
+pop_data2 <- pop_data |>
+  dplyr::filter(`表章項目` == "人口") |>
+  dplyr::mutate(`男女` = factor(`男女_時系列`, levels = c("総数", "男", "女")),
+                `地域` = `地域_時系列`,
+                `年` = str_sub(time_code, 1, 4) |> as.numeric(),
+                `人口` = value,
+                .keep = "none")
+```
+
+### 結果
+
+```{r}
+pop_data2
+```
+
+## 可視化
+
+ggplot2
+
+```{r}
+pop_data2 |>
+  dplyr::filter(`男女` == "総数", `地域` == "全国") |>
+  ggplot(aes(x = `年`, y = `人口`)) +
+  geom_line() + geom_point()
+```
+
+axis
+
+```{r}
+pop_data2 |>
+  dplyr::filter(`男女` == "総数", `地域` == "全国") |>
+  ggplot(aes(x = `年`, y = `人口`)) +
+  geom_line() + geom_point() +
+  scale_x_continuous(breaks = seq(1920, 2020, 10)) +
+  scale_y_continuous(name = "人口（人）",
+                     breaks = seq(6e+7, 12e+7, 2e+7),
+                     labels = c("6000万", "8000万", "1億", "1億2000万"))
+```
+
+plot
+
+```{r}
+pop_data2 |>
+  dplyr::filter(`地域` == "全国") |>
+  ggplot(aes(x = `年`, y = `人口`, colour = `男女`)) +
+  geom_line() + geom_point() +
+  scale_x_continuous(breaks = seq(1920, 2020, 10)) +
+  scale_y_continuous(name = "人口（人）",
+                     breaks = seq(6e+7, 12e+7, 2e+7),
+                     labels = c("6000万", "8000万", "1億", "1億2000万"))
+```
+
+```{r}
+pop_data2 |>
+  dplyr::filter(`地域` %in% c("富山県", "石川県", "福井県")) |>
+  ggplot(aes(x = `年`, y = `人口`, colour = `地域`,
+             linetype = `男女`, shape = `男女`)) +
+  geom_line() + geom_point() +
+  scale_x_continuous(breaks = seq(1920, 2020, 10)) +
+  scale_y_continuous(name = "人口（万人）",
+                     breaks = seq(2e+5, 12e+5, 2e+5),
+                     labels = \(x) x / 1e+4)
+```

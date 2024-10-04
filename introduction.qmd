@@ -1,0 +1,22 @@
+---
+title: "データの読み込みと可視化"
+author: "伊東宏樹"
+format: revealjs
+editor: visual
+---
+
+## はじめに
+
+## データの読み込み
+
+readr
+
+readxl
+
+## 可視化
+
+ggplot2
+
+## 実演
+
+## おわりに
