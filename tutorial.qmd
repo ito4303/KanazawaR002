@@ -2,6 +2,7 @@
 title: "データの読み込みと可視化"
 author: "伊東宏樹"
 format: html
+embed-resources: true
 editor: visual
 ---
 

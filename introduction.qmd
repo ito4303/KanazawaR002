@@ -1,21 +1,46 @@
 ---
-title: "データの読み込みと可視化"
+title: "データの読み込みから可視化"
 author: "伊東宏樹"
 format: revealjs
+embed-resources: true
 editor: visual
 ---
 
-## はじめに
+## 自己紹介
+
+### 内容
+
+-   データの読み込み
+
+-   データの可視化
+
+## データ読み込みと可視化
+
+[![データサイエンスのモデル (Wickham H. et al. (2023) R for Data Science (2nd ed.), CC-BY-NC-ND 3.0)](images/base.png)](https://r4ds.hadley.nz/intro#fig-ds-diagram)
 
 ## データの読み込み
 
-readr
+パッケージ利用で各種データファイルを読み込むことができる
 
-readxl
+-   CSV, TSVファイル: readrパッケージ
+
+    -   デフォルトのutilsパッケージにもテキストファイル読み込み関数あり
+
+-   EXCELファイル: readxlパッケージ
+
+-   ODSファイル: readODSパッケージ
+
+など
 
 ## 可視化
 
-ggplot2
+グラフ作成のパッケージ
+
+-   デフォルトのgraphicsパッケージ
+-   ggplot2パッケージ
+-   plotlyパッケージ
+
+など
 
 ## 実演
 
