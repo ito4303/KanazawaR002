@@ -211,7 +211,7 @@ pref_data4 <- pref_data2 |>
 pref_data4
 ```
 
-グラフにします。テーマを`theme_bw`に変えています。
+グラフにします。`geom_point`で散布図を作成します。テーマは`theme_bw`にしました。
 
 ```{r}
 #| label: point1
@@ -249,7 +249,7 @@ ggplot(pref_data4, aes(x = `男`, y = `女`)) +
 
 各都道府県の2020年の人口総数をグラフにします。
 
-`geom_bar`は棒グラフを描画します。`stat = "identity"`という引数は、値をそのまま使うことを指定しています。デフォルトでは、xで指定した因子の数をカウントした値が使われます。
+`geom_col`は棒グラフを描画します。テーマは`theme_classic`を使用しました。
 
 ```{r}
 #| label: bar1
@@ -257,7 +257,7 @@ ggplot(pref_data4, aes(x = `男`, y = `女`)) +
 pref_data2 |>
   dplyr::filter(`地域` != "全国", `男女` == "総数", `年` == 2020) |>
   ggplot(aes(x = `地域`, y = `人口`)) +
-  geom_bar(stat = "identity") +
+  geom_col() +
   theme_classic(base_family = jp_font)
 ```
 
@@ -269,7 +269,7 @@ pref_data2 |>
 pref_data2 |>
   dplyr::filter(`地域` != "全国", `男女` == "総数", `年` == 2020) |>
   ggplot(aes(x = `地域`, y = `人口`)) +
-  geom_bar(stat = "identity") +
+  geom_col() +
   scale_x_discrete(name = "都道府県", guide = guide_axis(angle = 90)) +
   scale_y_continuous(name = "人口（万人）",
                      limits = c(0, 1.5e+7),
@@ -281,10 +281,13 @@ pref_data2 |>
 横にしたほうが見やすいかもしれません。そうするには、`coord_flip()`を使います。そうすると、縦軸が下から並ぶようになるので、`scale_x_discrete`関数で、`limits = rev`として、上から並ぶようにさせます。
 
 ```{r}
+#| label: bar_plot3
+#| fig-height: 7
+
 pref_data2 |>
   dplyr::filter(`地域` != "全国", `男女` == "総数", `年` == 2020) |>
   ggplot(aes(x = `地域`, y = `人口`)) +
-  geom_bar(stat = "identity") +
+  geom_col() +
   scale_x_discrete(name = "都道府県", limits = rev) +
   scale_y_continuous(name = "人口（万人）",
                      limits = c(0, 1.5e+7),
@@ -297,10 +300,13 @@ pref_data2 |>
 都道府県名のラベルと、横軸の0との間の隙間が気になるので、ここを詰めるようにします。これには、`scale_y_continuous`関数で、`expand = expansion(mult = c(0, 0.05))`と指定します。
 
 ```{r}
+#| label: bar_plot4
+#| fig-height: 7
+
 pref_data2 |>
   dplyr::filter(`地域` != "全国", `男女` == "総数", `年` == 2020) |>
   ggplot(aes(x = `地域`, y = `人口`)) +
-  geom_bar(stat = "identity") +
+  geom_col() +
   scale_x_discrete(limits = rev) +
   scale_y_continuous(name = "人口（万人）",
                      limits = c(0, 1.5e+7),
@@ -311,13 +317,16 @@ pref_data2 |>
   theme_classic(base_family = jp_font)
 ```
 
-男女別の積み上げグラフにします。これには、`geom_bar`関数の引数で`position = "stack"`とします（実はデフォルトです）。また、`scale_fill_manual(values = c("blue", "red"))`で色も指定します。
+男女別の積み上げグラフにします。これには、`geom_col`関数の引数で`position = "stack"`とします（実はデフォルトです）。また、`scale_fill_manual(values = c("blue", "red"))`で色も指定します。
 
 ```{r}
+#| label: bar_plot5
+#| fig-height: 7
+
 pref_data2 |>
   dplyr::filter(`地域` != "全国", `男女` != "総数", `年` == 2020) |>
   ggplot(aes(x = `地域`, y = `人口`, fill = `男女`)) +
-  geom_bar(stat = "identity", position = "stack") +
+  geom_col(position = "stack") +
   scale_fill_manual(values = c("blue", "red")) +
   scale_x_discrete(limits = rev) +
   scale_y_continuous(name = "人口（万人）",
