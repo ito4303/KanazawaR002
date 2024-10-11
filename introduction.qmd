@@ -1,0 +1,79 @@
+---
+title: "データの読み込みから可視化"
+author: "伊東宏樹"
+format: revealjs
+embed-resources: true
+editor: visual
+---
+
+## 自己紹介
+
+-   氏名: 伊東宏樹
+
+-   3月まで森林総合研究所勤務
+
+-   4月から個人事業主（[伊東生態統計研究室](https://ito4303.sakura.ne.jp/)）
+
+-   データ解析、執筆・翻訳、研修講師などお引き受けいたします。
+
+-   出版物: 『[BUGSで学ぶ階層モデリング入門](https://www.kyoritsu-pub.co.jp/book/b10003729.html)』『[生態学のための階層モデリング](https://www.kyoritsu-pub.co.jp/book/b10003301.html)』（以上共訳）など
+
+## データ読み込みと可視化
+
+[![データサイエンスのモデル (Wickham H. et al. (2023) R for Data Science (2nd ed.), CC-BY-NC-ND 3.0)](images/base.png)](https://r4ds.hadley.nz/intro#fig-ds-diagram)
+
+### 本日の内容
+
+-   データの読み込み
+
+    -   整形
+
+    -   変形
+
+-   データの可視化
+
+## データの読み込み (Import)
+
+パッケージ利用で各種データファイルをRに読み込むことができる
+
+-   CSV, TSVファイル: readrパッケージ
+
+    -   デフォルトのutilsパッケージにもテキストファイル読み込み関数あり
+
+-   Excelファイル: readxlパッケージ
+
+-   ODSファイル: readODSパッケージ
+
+など
+
+## データの整形 (Tidy)・変形 (Transform)
+
+-   整然データにする
+
+-   整然データを、利用目的に応じて変形する
+
+## 可視化 (Vizualize)
+
+グラフ作成のパッケージ
+
+-   デフォルトのgraphicsパッケージ
+-   ggplot2パッケージ
+-   plotlyパッケージ
+
+など
+
+## 実演
+
+## おわりに
+
+わからないことは
+
+-   公式マニュアル
+
+-   人工知能
+
+-   検索
+
+-   コミュニティ
+
+    -   [r-wakalang](https://r-wakalang.slack.com/) (Slack)
