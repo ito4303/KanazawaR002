@@ -1,10 +1,14 @@
 ---
 title: "データの読み込みから可視化"
 author: "伊東宏樹"
+date: 2024-11-23
+lang: ja
 format: html
 execute:
   echo: true
 embed-resources: true
+code-line-numbers: false
+code-copy: true
 editor: visual
 ---
 
@@ -22,17 +26,15 @@ library(tidyverse)
 
 データとして、国勢調査のデータを使用します。
 
-e-statの「[国勢調査/時系列データ/男女，年齢，配偶関係/男女別人口及び人口性比 － 全国，都道府県（大正9年～令和2年）](https://www.e-stat.go.jp/dbview?sid=0003410379)」からCSV（列指向データ）をダウンロードします。ここでは、"FEH_00200521_241003100519.csv"というファイル名でダウンロードされました（ダウンロードごとにファイル名が変わると思われます）。ダウンロードされたファイルを"`data`" フォルダの中に入れておきます。
+e-statの「[国勢調査/時系列データ/男女，年齢，配偶関係/男女別人口及び人口性比 － 全国，都道府県（大正9年～令和2年）](https://www.e-stat.go.jp/dbview?sid=0003410379)」からCSV（列指向データ）をダウンロードします。ここでは、`FEH_00200521_241003100519.csv`というファイル名でダウンロードされました（ダウンロードごとにファイル名が変わると思われます）。ダウンロードされたファイルを`data`フォルダの中に入れておきます。
 
 ダウンロードされたファイルをreadrパッケージの`read_csv`関数を使ってRに読み込みます。`fie.path`関数で、使用するシステムに応じたファイルパスを作成して、`data_path`変数に入れておきます。
 
 read_csv関数では、このファイルパス(`data_path`)からファイルを読み込みます。その他の引数は、以下のとおりです。
 
 -   `col_types`: 各列の型（各文字が各列に対応、f: 因子、c: 文字列、d: 倍精度実数）
-
 -   `na`: データファイル中で欠測（データなし）を表す文字（ここでは"`-`"）
-
--   `locale`: ここでは文字コード（CP932≒Shift_JIS）を指定しています
+-   `locale`: ここでは文字コード（CP932 (≒Shift_JIS)）を指定しています
 
 ```{r}
 #| label: read_csv
@@ -79,9 +81,11 @@ pref_data2
 
 ### Excelファイルの場合
 
-readxlパッケージの`read_excel`関数で、Excelファイルを読み込みます。例として、[e-Gov/人口総数：総務省『国勢調査』](https://data.e-gov.go.jp/data/dataset/cao_20150109_0014)から、ダウンロードしたファイル(`file01.xls`)を使います。
+Excelファイルの場合の読み込み方法もちょっとだけ紹介します。
 
-このファイルの先頭6行にはメタデータが記述されていますので、`read_excel`関数で、"skip = 6"という引数を与えて、先頭から6行を読み飛ばすようにします。
+readxlパッケージの`read_excel`関数で、Excelファイルを読み込むことができます。例として、[e-Gov/人口総数：総務省『国勢調査』](https://data.e-gov.go.jp/data/dataset/cao_20150109_0014)から、ダウンロードしたファイル(`file01.xls`)を使います。
+
+このファイルの先頭6行にはメタデータが記述されていますので、`read_excel`関数で、`skip = 6`"という引数を与えて、先頭から6行を読み飛ばすようにします。
 
 ```{r}
 #| label: readxl
@@ -95,7 +99,7 @@ head(city_data)
 
 ## 可視化
 
-ここからデータをグラフにして可視化していきます。そのためにここではggplot2を使用します。
+ここからデータをグラフにして可視化していきます。そのためにここではggplot2を使用します。データには、先に読み込んだ都道府県の人口データを使用しました。
 
 グラフ作成の前に、使用する日本語フォントを変数にいれておきます。この部分はシステムやお好みで適宜変えてください。
 
@@ -109,7 +113,7 @@ jp_font <- "YuGothic"
 
 まず、全国の人口総数データを時系列で表示します。時系列データの可視化には折れ線グラフを使用します。
 
-dplyrパッケージのfilter関数で、グラフに必要な行だけに絞り込みます。
+dplyrパッケージの`filter`関数で、グラフに必要な行だけに絞り込みます。
 
 ```{r}
 #| label: pref_data3
@@ -211,7 +215,7 @@ pref_data4 <- pref_data2 |>
 pref_data4
 ```
 
-グラフにします。テーマを`theme_bw`に変えています。
+グラフにします。`geom_point`で散布図を作成します。テーマは`theme_bw`にしました。
 
 ```{r}
 #| label: point1
@@ -249,7 +253,7 @@ ggplot(pref_data4, aes(x = `男`, y = `女`)) +
 
 各都道府県の2020年の人口総数をグラフにします。
 
-`geom_bar`は棒グラフを描画します。`stat = "identity"`という引数は、値をそのまま使うことを指定しています。デフォルトでは、xで指定した因子の数をカウントした値が使われます。
+`geom_col`は棒グラフを描画します。テーマは`theme_classic`を使用しました。
 
 ```{r}
 #| label: bar1
@@ -257,7 +261,7 @@ ggplot(pref_data4, aes(x = `男`, y = `女`)) +
 pref_data2 |>
   dplyr::filter(`地域` != "全国", `男女` == "総数", `年` == 2020) |>
   ggplot(aes(x = `地域`, y = `人口`)) +
-  geom_bar(stat = "identity") +
+  geom_col() +
   theme_classic(base_family = jp_font)
 ```
 
@@ -269,7 +273,7 @@ pref_data2 |>
 pref_data2 |>
   dplyr::filter(`地域` != "全国", `男女` == "総数", `年` == 2020) |>
   ggplot(aes(x = `地域`, y = `人口`)) +
-  geom_bar(stat = "identity") +
+  geom_col() +
   scale_x_discrete(name = "都道府県", guide = guide_axis(angle = 90)) +
   scale_y_continuous(name = "人口（万人）",
                      limits = c(0, 1.5e+7),
@@ -281,10 +285,13 @@ pref_data2 |>
 横にしたほうが見やすいかもしれません。そうするには、`coord_flip()`を使います。そうすると、縦軸が下から並ぶようになるので、`scale_x_discrete`関数で、`limits = rev`として、上から並ぶようにさせます。
 
 ```{r}
+#| label: bar_plot3
+#| fig-height: 7
+
 pref_data2 |>
   dplyr::filter(`地域` != "全国", `男女` == "総数", `年` == 2020) |>
   ggplot(aes(x = `地域`, y = `人口`)) +
-  geom_bar(stat = "identity") +
+  geom_col() +
   scale_x_discrete(name = "都道府県", limits = rev) +
   scale_y_continuous(name = "人口（万人）",
                      limits = c(0, 1.5e+7),
@@ -297,10 +304,13 @@ pref_data2 |>
 都道府県名のラベルと、横軸の0との間の隙間が気になるので、ここを詰めるようにします。これには、`scale_y_continuous`関数で、`expand = expansion(mult = c(0, 0.05))`と指定します。
 
 ```{r}
+#| label: bar_plot4
+#| fig-height: 7
+
 pref_data2 |>
   dplyr::filter(`地域` != "全国", `男女` == "総数", `年` == 2020) |>
   ggplot(aes(x = `地域`, y = `人口`)) +
-  geom_bar(stat = "identity") +
+  geom_col() +
   scale_x_discrete(limits = rev) +
   scale_y_continuous(name = "人口（万人）",
                      limits = c(0, 1.5e+7),
@@ -311,13 +321,16 @@ pref_data2 |>
   theme_classic(base_family = jp_font)
 ```
 
-男女別の積み上げグラフにします。これには、`geom_bar`関数の引数で`position = "stack"`とします（実はデフォルトです）。また、`scale_fill_manual(values = c("blue", "red"))`で色も指定します。
+男女別の積み上げグラフにします。これには、`geom_col`関数の引数で`position = "stack"`とします（実はデフォルトです）。また、`scale_fill_manual(values = c("blue", "red"))`で色も指定します。
 
 ```{r}
+#| label: bar_plot5
+#| fig-height: 7
+
 pref_data2 |>
   dplyr::filter(`地域` != "全国", `男女` != "総数", `年` == 2020) |>
   ggplot(aes(x = `地域`, y = `人口`, fill = `男女`)) +
-  geom_bar(stat = "identity", position = "stack") +
+  geom_col(position = "stack") +
   scale_fill_manual(values = c("blue", "red")) +
   scale_x_discrete(limits = rev) +
   scale_y_continuous(name = "人口（万人）",

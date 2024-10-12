@@ -36,23 +36,23 @@ editor: visual
 
 パッケージ利用で各種データファイルをRに読み込むことができる
 
--   CSV, TSVファイル: readrパッケージ
-
-    -   デフォルトのutilsパッケージにもテキストファイル読み込み関数あり
-
--   Excelファイル: readxlパッケージ
-
--   ODSファイル: readODSパッケージ
+-   CSV, TSV: readrパッケージ
+-   Excel: readxlパッケージ
+-   ODS: readODSパッケージ
+-   JSON: jsonliteパッケージ
+-   Parquet: arrowパッケージ
 
 など
 
 ## データの整形 (Tidy)・変形 (Transform)
 
+-   tidyr, dplyrパッケージなど
+
 -   整然データにする
 
 -   整然データを、利用目的に応じて変形する
 
-## 可視化 (Vizualize)
+## 可視化 (Visualize)
 
 グラフ作成のパッケージ
 
@@ -69,11 +69,7 @@ editor: visual
 わからないことは
 
 -   公式マニュアル
-
--   人工知能
-
+-   ChatGPT
 -   検索
-
 -   コミュニティ
-
     -   [r-wakalang](https://r-wakalang.slack.com/) (Slack)
