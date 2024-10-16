@@ -193,26 +193,63 @@ pref_data2 |>
   theme_gray(base_family = jp_font)
 ```
 
-### 散布図
+### 積み上げ折れ線グラフとグラフの分割
 
-都道府県ごとに、2020年の男女の人口を比較します。
+一応目的のグラフは描けましたが、これでは煩雑なので、グラフを分けて積み上げ折れ線グラフにします。
 
-まず、データを変形します。地域が"全国"以外（＝各都道府県）で2020年のデータを抽出して、`男女`を新しい列に、その値に`人口`を当てるように変形します。
+そのためまずデータを変形します。総数と男女別の人口が新しい列になるようにします。
 
 ```{r}
-#| label: point_data
+#| label: transform
 
 pref_data4 <- pref_data2 |>
-  dplyr::filter(`地域` != "全国", `年` == 2020) |>
-    tidyr::pivot_wider(names_from = `男女`, values_from = `人口`)
+  tidyr::pivot_wider(names_from = `男女`, values_from = `人口`)
 ```
 
 このようになります。
 
 ```{r}
-#| label: point_data4
+head(pref_data4, 10)
+```
 
-pref_data4
+さらに必要な3県のデータを取り出して、グラフを描画します。ここでは、`facet_wrap`関数を使って各県のグラフを分割して描くようにしました。
+
+`geom_area`と`geom_ribbon`を組み合わせて使うことで、積み上げグラフにしています。また、`annotate`関数でグラフに直接説明を書き込んでいます。
+
+```{r}
+#| label: line5
+
+pref_data4 |>
+  dplyr::filter(`地域` %in% c("富山県", "石川県", "福井県")) |>
+  ggplot() +
+  geom_area(aes(x = `年`, y = `女`), fill ="red") +
+  geom_ribbon(aes(x = `年`, ymin = `女`, ymax = `総数`), fill = "blue") +
+  annotate("text", x = 2000, y = 3e+5, label = "女", color = "white") +
+  annotate("text", x = 2000, y = 7.2e+5, label = "男", color = "white") +
+  scale_x_continuous(breaks = seq(1920, 2020, 20)) +
+  scale_y_continuous(name = "人口（万人）",
+                     limits = c(0, 12e+5),
+                     breaks = seq(0, 12e+5, by = 2e+5),
+                     labels = \(x) x / 1e+4) +
+  theme_gray(base_family = jp_font) +
+  facet_wrap(~`地域`, nrow = 2)
+```
+
+### 散布図
+
+都道府県ごとに、2020年の男女の人口を比較します。
+
+`pref_data4`から、地域が"全国"以外（＝各都道府県）で2020年のデータを抽出します。
+
+```{r}
+pref_data5 <- pref_data4 |>
+  dplyr::filter(`地域` != "全国", `年` == 2020)
+```
+
+このようになります。
+
+```{r}
+head(pref_data5)
 ```
 
 グラフにします。`geom_point`で散布図を作成します。テーマは`theme_bw`にしました。
@@ -220,7 +257,7 @@ pref_data4
 ```{r}
 #| label: point1
 
-ggplot(pref_data4, aes(x = `男`, y = `女`)) +
+ggplot(pref_data5, aes(x = `男`, y = `女`)) +
   geom_point() +
   theme_bw(base_family = jp_font)
 ```
@@ -234,7 +271,7 @@ ggplot(pref_data4, aes(x = `男`, y = `女`)) +
 ```{r}
 #| label: point2
 
-ggplot(pref_data4, aes(x = `男`, y = `女`)) +
+ggplot(pref_data5, aes(x = `男`, y = `女`)) +
   geom_abline(linetype = 2, slope = 1, intercept = 0) +
   geom_point(size = 3, alpha = 0.6) +
   scale_x_continuous(name = "男性人口（万人）",
