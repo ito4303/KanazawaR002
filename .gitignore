@@ -52,5 +52,6 @@ rsconnect/
 *_files/
 
 # Output files
+*_files/
 *.html
 

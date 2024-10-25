@@ -1,0 +1,312 @@
+---
+title: "ベイズ統計モデリングとMCMC"
+author: "伊東宏樹"
+date: 2024-11-23
+format: revealjs
+slide-number: true
+editor: visual
+embed-resources: true
+---
+
+```{r}
+#| label: setup
+
+library(ggplot2)
+library(purrr)
+library(nimble)
+library(coda)
+set.seed(123)
+```
+
+## 内容
+
+-   ベイズ統計モデリング
+
+-   MCMC（マルコフ連鎖モンテカルロ）法
+
+## 統計モデルとは
+
+説明変数と目的変数との関係を何らかの確率分布を使って記述したもの
+
+![](images/確率モデル.png){fig-align="center"}
+
+統計モデルをつくる→統計モデリング
+
+## ベイズ統計モデル
+
+ベイズ統計を使用した統計モデリング
+
+## ベイズの定理
+
+$$
+P(Y \mid X) = \frac{P(X \mid Y)P(Y)}{P(X)}
+$$
+
+$$
+ = \frac{P(X \mid Y)P(Y)}{P(X \mid Y)P(Y)+P(X \mid \overline{Y})P(\overline{Y})}
+$$
+
+## 例題
+
+1000人に1人がかかる病気があるとする。検査をすると、この病気にかかっている場合には99%の確率で陽性となる。ただし、かかっていなくても5%の確率で陽性になる。ある人が検査を受けて陽性になった。このとき実際にこの人がこの病気にかかっている確率は何パーセントか。
+
+## 答
+
+$$
+\frac{0.99 \times 0.001}{0.99 \times 0.001 + 0.05 \times 0.999} = 0.01943463
+$$
+
+実際にこの病気にかかっている確率はおよそ2%
+
+## ベイズ推定
+
+事前確率を、得られたデータで更新していく
+
+確率分布を推定するときは、事前分布→事後分布
+
+## MCMC（マルコフ連鎖モンテカルロ）法とは
+
+モデルのパラメータを推定する手法
+
+MCMC = MC（マルコフ連鎖） + MC（モンテカルロ）
+
+## マルコフ連鎖
+
+1期前の状態にのみ依存する確率変数列
+
+例: ランダムウオーク
+
+```{r}
+#| label: random_walk
+
+N <- 20
+X <- rep(0, N + 1)
+for (n in 2:(N + 1)) {
+  X[n] <- X[n - 1] + rbinom(1, 1, 0.5) * 2 - 1
+}
+
+ggplot(data.frame(Time = 0:N, X = X), aes(x = Time, y = X)) +
+  geom_line() + geom_point() +
+  scale_x_continuous(limits = c(0, 20), breaks = seq(0, 20, 5),
+                     minor_breaks = seq(0, 20, 1)) +
+  theme_gray(base_size = 18)
+```
+
+## モンテカルロ法
+
+乱数を使った推定法
+
+例: 円周率を求める
+
+```{r}
+#| label: monte_carlo
+
+N <- 1000
+x <- runif(N, 0, 1)
+y <- runif(N, 0, 1)
+df <- data.frame(x = x, y = y)
+df$inside <- (df$x^2 + df$y^2 <= 1)
+
+ggplot() +
+  stat_function(fun = ~ sqrt(1 - .x^2), geom = "line", xlim = c(0, 1)) +
+  geom_segment(aes(x = 1, y = 0, xend = 1, yend = 1)) +
+  geom_segment(aes(x = 0, y = 1, xend = 1, yend = 1)) +
+  geom_point(data = df, mapping = aes(x = x, y = y, colour = inside)) +
+  scale_x_continuous(expand = c(mult = c(0, 0), add = c(0, 0.05))) +
+  scale_y_continuous(expand = c(mult = c(0, 0), add = c(0, 0.05))) +
+  coord_fixed() +
+  theme_classic(base_size = 18) +
+  theme(legend.position = "none")
+```
+
+## MCMC
+
+-   ベイズ統計モデルで、複雑な統計モデルのパラメータ推定に使われる。
+
+-   乱数を使って、事後分布からサンプリングしたと見なせるマルコフ連鎖を生成する。
+
+## MCMCのソフトウェア
+
+-   [JAGS](https://mcmc-jags.sourceforge.io/)
+
+-   [NIMBLE](https://r-nimble.org/)
+
+-   [Stan](https://mc-stan.org/)
+
+など。
+
+いずれもRとは別のモデル記述言語で、モデルを記述する
+
+## NIMBLEを使った統計モデリングの例
+
+```{r}
+#| label: data_gen
+
+set.seed(12)
+
+G <- 8
+N <- 20
+G_index <- rep(seq_len(G), each = N)
+X <- map(seq_len(G),
+         \(i) runif(N, 4 - 0.25 * i, 6 - 0.25 * i))
+ranef <- rnorm(G, 0, 1) |>
+  sort()
+Y <- map(seq_len(G),
+         \(i) 2 * X[[i]] + ranef[i] + rnorm(N, 0, 1))
+df <- data.frame(X = unlist(X), Y = unlist(Y), Group = factor(G_index))
+
+ggplot(df, aes(x = X, y = Y, colour = Group)) +
+  geom_point(size = 3) +
+  scale_color_discrete(name = "Group") +
+  theme_gray(base_size = 16)
+```
+
+群ごとに切片が異なるが、群内では傾きはだいたい2くらいでどれも同程度。
+
+## 群を無視すると
+
+```{r}
+#| echo: true
+
+lm(Y ~ X, data = df) |> summary()
+```
+
+傾きを過小評価してしまった
+
+## 混合効果モデル
+
+固定効果+変量効果
+
+-   固定効果
+
+-   変量効果
+
+## NIMBLEモデル
+
+BUGS言語で統計モデルを記述
+
+```{r}
+#| label: nimble_model
+#| echo: true
+
+code <- nimbleCode({
+  for (n in 1:N) {
+    mu[n] <- alpha + beta * X[n] + epsilon[Gind[n]]
+    Y[n] ~ dnorm(mu[n], tau[1])
+  }
+  for (g in 1:G) {
+    epsilon[g] ~ dnorm(0, tau[2])
+  }
+  alpha ~ dnorm(0, 1e-4)
+  beta ~ dnorm(0, 1e-4)
+  for (i in 1:2) {
+    tau[i] <- 1 / (sigma[i] * sigma[i])
+    sigma[i] ~ dunif(0, 100)
+  }
+})
+```
+
+## コンパイル・実行
+
+```{r}
+#| label: mcmc_pre
+#| cache: true
+#| echo: true
+#| output: false
+
+G <- length(levels(df$Group))
+out <- nimbleMCMC(code = code,
+                  constants = list(N = nrow(df),
+                                   G = G,
+                                   Gind = as.numeric(df$Group)),
+                  data = list(Y = df$Y, X = df$X),
+                  inits = list(alpha = -2, beta = -2,
+                               epsilon = rep(0, G),
+                               sigma = c(4, 2)),
+                  niter = 500, nburnin = 0,
+                  samplesAsCodaMCMC = TRUE)
+```
+
+## 結果
+
+`beta`のマルコフ連鎖の軌跡
+
+```{r}
+traceplot(out[, 2])
+```
+
+## burn-in
+
+初期値の影響が残っている部分は捨てる
+
+## 実行
+
+```{r}
+#| label: nimble_mcmc
+#| cache: true
+#| echo: true
+#| output: false
+
+out <- nimbleMCMC(code = code,
+                  constants = list(N = nrow(df), G = G,
+                                   Gind = as.numeric(df$Group)),
+                  data = list(Y = df$Y, X = df$X),
+                  inits = function() {
+                    list(alpha = runif(1, -2, 2), beta = runif(1, -2, 2),
+                    epsilon = runif(G, -2, 2),
+                    sigma = runif(2, 0, 2))},
+                  nchains = 3, niter = 12000, nburnin = 2000,
+                  samplesAsCodaMCMC = TRUE)
+```
+
+## traceplot (alpha)
+
+マルコフ連鎖の軌跡プロット（codaパッケージのtraceplot関数を使用）
+
+```{r}
+#| echo: true
+
+traceplot(out[, "alpha"])
+```
+
+## traceplot (sigma\[1\])
+
+```{r}
+#| echo: true
+
+traceplot(out[, "sigma[1]"])
+```
+
+## R-hat
+
+MCMC計算が収束したかどうかの指標値。1.1以下ならOKとする場合が多い。
+
+```{r}
+#| echo: true
+
+gelman.diag(out)
+```
+
+## 要約
+
+```{r}
+#| echo: true
+
+summary(out)
+```
+
+Density
+
+```{r}
+#| echo: true
+
+densplot(out[, "beta"])
+```
+
+## 参考文献
+
+-   [データ解析のための統計モデリング入門](https://www.iwanami.co.jp/book/b257893.html)（久保拓弥, 岩波書店, 2012年）
+
+-   [StanとRでベイズ統計モデリング](https://www.kyoritsu-pub.co.jp/book/b10003786.html)（松浦健太郎, 共立出版, 2016年）
+
+-   [RとStanではじめるベイズ統計モデリングによるデータ分析入門](https://www.kspub.co.jp/book/detail/5165362.html)（馬場真哉, 講談社, 2019年）
