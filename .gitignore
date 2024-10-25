@@ -49,5 +49,6 @@ po/*~
 rsconnect/
 
 # Output files
+*_files/
 *.html
 
