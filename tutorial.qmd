@@ -378,3 +378,51 @@ pref_data2 |>
   coord_flip() +
   theme_classic(base_family = jp_font)
 ```
+
+## 地理データの読み込み
+
+### シェープファイルの場合
+
+```{r}
+#| label: read_geodata
+
+library(sf)
+
+shapefile <- file.path("data", "N03-20240101_17.shp")
+data <- st_read(shapefile)
+```
+
+### GeoJSON
+
+```{r}
+jsonfile <- file.path("data", "N03-20240101_17.geojson")
+data <- st_read(jsonfile)
+```
+
+## 地理データの可視化
+
+```{r}
+ggplot(data) +
+  geom_sf()
+```
+
+```{r}
+data2 <- data |>
+  dplyr::group_by(N03_004) |>
+  dplyr::summarise(geometry = st_union(geometry)) |>
+  dplyr::ungroup() |>
+  dplyr::rename(name = N03_004)
+```
+
+plot
+
+```{r}
+#| warning: false
+
+ggplot(data2) +
+  geom_sf() +
+  geom_sf_text(aes(label = name), size = 2.5, family = "Noto Sans JP") +
+  scale_x_continuous(breaks = seq(136.5, 137.5, 0.5)) +
+  labs(x = "経度", y = "緯度") +
+  theme_bw(base_family = "Noto Sans JP")
+```
