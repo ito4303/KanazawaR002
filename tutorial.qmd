@@ -433,7 +433,7 @@ data_g <- st_read(jsonfile)
 print(data_g)
 ```
 
-できたデータの`data_g`のクラスを確認しています。sf (= simple feature)クラスに属していることがわかります。
+できたデータの`data_g`のクラスを確認しています。sfクラスに属していることがわかります。
 
 ```{r}
 #| label: class_geojson_data
@@ -452,14 +452,14 @@ ggplot(data_g) +
   geom_sf()
 ```
 
-データに含まれるポリゴンを市町村ごとにst_union関数で結合します。また、わかりやすいように、市区町村名のフィールドのN03_004を、nameという名前に変えておきます。
+データに含まれるポリゴンを市町村ごとにst_combine関数でまとめます。また、わかりやすいように、市区町村名のフィールドのN03_004を、nameという名前に変えておきます。
 
 ```{r}
-#| label: st_union
+#| label: st_combine
 
 data <- data_g |>
   dplyr::group_by(N03_004) |>
-  dplyr::summarise(geometry = st_union(geometry)) |>
+  dplyr::summarise(geometry = st_combine(geometry)) |>
   dplyr::ungroup() |>
   dplyr::rename(name = N03_004)
 ```
@@ -497,15 +497,23 @@ pop_data <- read_csv(pop_data_file, skip = 1,
   dplyr::filter(year == "2020年度")
 ```
 
+人口データを地理空間データに結合します。`left_join`は、`by`引数の変数をキーとして、左側のデータ(この例では`data`)を保存しつつ、右側のデータ(この例では`pop_data`)から共通のキーをもつ行を結合するという関数です。
+
+（この例では両方のデータが1対1対応するので、`left_join`でも`right_join`でも結果は変わりません。）
+
+```{r}
+#| label: join
+
+data_join <- dplyr::left_join(data, pop_data, by = "name")
+```
+
 2020年の総人口データを色で表現して、地図化しました。総人口は対数スケールにしています。
 
 ```{r}
 #| label: choropleth
 #| warning: false
 
-data |>
-  dplyr::left_join(pop_data, by = "name") |>
-ggplot() +
+ggplot(data_join) +
   geom_sf(aes(fill = population)) +
   geom_sf_text(aes(label = name), size = 2.5, family = "Noto Sans JP") +
   scale_x_continuous(breaks = seq(136.5, 137.5, 0.5)) +

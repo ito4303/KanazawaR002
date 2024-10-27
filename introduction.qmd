@@ -22,15 +22,15 @@ editor: visual
 
 [![データサイエンスのモデル (Wickham H. et al. (2023) R for Data Science (2nd ed.), CC-BY-NC-ND 3.0)](images/base.png)](https://r4ds.hadley.nz/intro#fig-ds-diagram)
 
-### 本日の内容
+## 本日の内容
 
 -   データの読み込み
 
-    -   整形
-
-    -   変形
+    -   整形・変形
 
 -   データの可視化
+
+-   地理空間データ
 
 ## データの読み込み (Import)
 
@@ -62,14 +62,35 @@ editor: visual
 
 など
 
+## 地理空間データ
+
+-   [sf](https://cran.r-project.org/package=sf)パッケージ
+
+    -   [OGC simple feature access](https://www.ogc.org/publications/standard/sfa/)対応[^1]
+
+[^1]: <https://notchained.hatenablog.com/entry/2017/01/06/213333>
+
 ## 実演
+
+::: {style="margin-top: 4em; text-align: center;"}
+実演画面をご覧ください
+:::
 
 ## おわりに
 
 わからないことは
 
 -   公式マニュアル
+-   参考文献
+-   コミュニティ
+    -   r-wakalang <https://r-wakalang.slack.com/>
 -   ChatGPT
 -   検索
--   コミュニティ
-    -   [r-wakalang](https://r-wakalang.slack.com/) (Slack)
+
+## 参考文献
+
+-   [RユーザのためのRstudio［実践］入門（改訂2版）](https://gihyo.jp/book/2021/978-4-297-12170-9)（松村優哉・湯谷啓明・紀ノ定保礼・前田和寛, 技術評論社, 2021年）
+
+-   [データ分析のためのデータ可視化入門](https://www.kspub.co.jp/book/detail/5164044.html)（キーラン・ヒーリー(著), 瓜生真也・江口哲史・三村喬生(訳), 講談社, 2021年）
+
+-   [Rではじめる地理空間データの統計解析入門](https://www.kspub.co.jp/book/detail/5273036.html)（村上大輔, 講談社, 2022年）
