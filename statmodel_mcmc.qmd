@@ -309,9 +309,9 @@ densplot(out[, "beta"])
 
 RからStanを使う方法
 
-  - rstanパッケージ
-  - cmdstanrパッケージ
-  
+-   rstanパッケージ
+-   cmdstanrパッケージ
+
 今回は前者を使用
 
 ```{r}
@@ -358,7 +358,6 @@ fit <- stan(file = file.path("model", "lme.stan"),
 
 summary(fit)$summary
 ```
-
 
 ## 参考文献
 
