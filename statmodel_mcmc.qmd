@@ -287,7 +287,9 @@ MCMC計算が収束したかどうかの指標値。1.1以下ならOKとする�
 gelman.diag(out)
 ```
 
-## 要約
+## 結果
+
+結果の要約
 
 ```{r}
 #| echo: true
@@ -295,13 +297,68 @@ gelman.diag(out)
 summary(out)
 ```
 
-Density
+## 密度グラフ
 
 ```{r}
 #| echo: true
 
 densplot(out[, "beta"])
 ```
+
+## Stanを使った統計モデリング
+
+RからStanを使う方法
+
+  - rstanパッケージ
+  - cmdstanrパッケージ
+  
+今回は前者を使用
+
+```{r}
+#| label: rstan
+
+library(rstan)
+```
+
+## Stanのモデル
+
+Stanで記述した同等のモデル。各パラメータの事前分布は弱情報事前分布とした。
+
+```{stan}
+#| file: model/lme.stan
+#| filename: lme.stan
+#| echo: true
+#| eval: false
+#| output.var: stanmodel
+```
+
+## 実行
+
+MCMC計算の実行
+
+```{r}
+#| label: run_stan
+#| echo: true
+#| output: false
+#| cache: true
+
+fit <- stan(file = file.path("model", "lme.stan"),
+            data = list(N = nrow(df), G = G, Gind = as.numeric(df$Group),
+                        X = df$X, Y = df$Y),
+            pars = c("alpha", "beta", "sigma"),
+            iter = 2000, warmup = 1000)
+```
+
+## 結果
+
+各パラメータの事後分布の要約
+
+```{r}
+#| label: stan_results
+
+summary(fit)$summary
+```
+
 
 ## 参考文献
 
