@@ -12,6 +12,16 @@ code-copy: true
 editor: visual
 ---
 
+## 内容
+
+-   データ読み込み
+
+-   ggplot2による可視化
+
+-   地理空間データの読み込み
+
+-   ggplot2による地理空間データの可視化
+
 ## 準備
 
 tidyverse（メタ）パッケージを読み込みます。
@@ -377,4 +387,136 @@ pref_data2 |>
                      expand = expansion(mult = c(0, 0.05))) +
   coord_flip() +
   theme_classic(base_family = jp_font)
+```
+
+## 地理空間データの読み込み
+
+地理空間データもRで読み込んで使用することができます。この項では、[国土数値情報行政区域データ](https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-N03-2024.html)から石川県のデータをダウンロードして使用します。
+
+### シェープファイル
+
+シェープファイルは複数のファイルから校正されています。sfパッケージの`st_read`関数で`N03-20240101_17.shp`を指定して読み込みます。
+
+```{r}
+#| label: read_shapefile_data
+
+library(sf)
+
+shapefile <- file.path("data", "N03-20240101_17.shp")
+data_s <- st_read(shapefile)
+```
+
+読み込んだデータを表示します。
+
+```{r}
+#| label: print_shapefile_data
+
+print(data_s)
+```
+
+### GeoJSON
+
+シェープファイルは複数のファイルに分かれていて、あつかいがやや煩雑なので、最近はGeoJSONファイルが使われることも多くなってきています。GeoJSONファイルも`st_read`関数で読むことができます。
+
+```{r}
+#| label: read_geojson_data
+
+jsonfile <- file.path("data", "N03-20240101_17.geojson")
+data_g <- st_read(jsonfile)
+```
+
+こちらも表示します。
+
+```{r}
+#| label: print_geojson_data
+
+print(data_g)
+```
+
+できたデータの`data_g`のクラスを確認しています。sf (= simple feature)クラスに属していることがわかります。
+
+```{r}
+#| label: class_geojson_data
+
+class(data_g)
+```
+
+## 地理データの可視化
+
+上で読み込んだデータをggplot2の`geom_sf`関数で表示してみます。
+
+```{r}
+#| label: geom_sf
+
+ggplot(data_g) +
+  geom_sf()
+```
+
+データに含まれるポリゴンを市町村ごとにst_union関数で結合します。また、わかりやすいように、市区町村名のフィールドのN03_004を、nameという名前に変えておきます。
+
+```{r}
+#| label: st_union
+
+data <- data_g |>
+  dplyr::group_by(N03_004) |>
+  dplyr::summarise(geometry = st_union(geometry)) |>
+  dplyr::ungroup() |>
+  dplyr::rename(name = N03_004)
+```
+
+各市区町村名を地図に重ねて表示します。
+
+```{r}
+#| label: geom_sf_text
+#| warning: false
+
+ggplot(data) +
+  geom_sf() +
+  geom_sf_text(aes(label = name), size = 2.5, family = "Noto Sans JP") +
+  scale_x_continuous(breaks = seq(136.5, 137.5, 0.5)) +
+  labs(x = "経度", y = "緯度") +
+  theme_bw(base_family = "Noto Sans JP")
+```
+
+### コロプレス図（塗り分け地図）
+
+2020年の総人口データを使って、各市区町村を塗り分けてみます。
+
+まず、各市区町村の総人口を読み込みます。このデータは[e-stat 都道府県・市区町村のすがた（社会・人口統計体系）](https://www.e-stat.go.jp/regional-statistics/ssdsview)からダウンロードしたものです。
+
+読み込んだ後、市区町村名の先頭についている都道府県名を削除し（実際には空白より後だけ残す処理）、2020年度のデータだけを抽出します。
+
+```{r}
+#| label: population
+
+pop_data_file <- file.path("data", "FEI_CITY_241027082628.csv")
+pop_data <- read_csv(pop_data_file, skip = 1,
+                     col_types = "cc_n",
+                     col_names = c("year", "name", "population")) |>
+  dplyr::mutate(name = str_sub(name, str_locate(name, " ")[1] + 1)) |>
+  dplyr::filter(year == "2020年度")
+```
+
+2020年の総人口データを色で表現して、地図化しました。総人口は対数スケールにしています。
+
+```{r}
+#| label: choropleth
+#| warning: false
+
+data |>
+  dplyr::left_join(pop_data, by = "name") |>
+ggplot() +
+  geom_sf(aes(fill = population)) +
+  geom_sf_text(aes(label = name), size = 2.5, family = "Noto Sans JP") +
+  scale_x_continuous(breaks = seq(136.5, 137.5, 0.5)) +
+  scale_fill_gradient(name = "人口",
+                      low = "skyblue",
+                      high = "red",
+                      transform = "log",
+                      limits = c(5e+3, 5e+5),
+                      breaks = c(5e+3, 1e+4, 5e+4, 1e+5, 5e+5),
+                      labels = c("5000", "1万", "5万",
+                                 "10万", "50万")) +
+  labs(x = NULL, y = NULL) +
+  theme_bw(base_family = "Noto Sans JP")
 ```

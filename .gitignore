@@ -48,6 +48,9 @@ po/*~
 # RStudio Connect folder
 rsconnect/
 
+# Intermediate files
+*_files/
+
 # Output files
 *.html
 
