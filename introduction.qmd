@@ -18,11 +18,9 @@ editor: visual
 
 -   出版物: 『[BUGSで学ぶ階層モデリング入門](https://www.kyoritsu-pub.co.jp/book/b10003729.html)』『[生態学のための階層モデリング](https://www.kyoritsu-pub.co.jp/book/b10003301.html)』（以上共訳）など
 
-## データ読み込みと可視化
-
-[![データサイエンスのモデル (Wickham H. et al. (2023) R for Data Science (2nd ed.), CC-BY-NC-ND 3.0)](images/base.png)](https://r4ds.hadley.nz/intro#fig-ds-diagram)
-
 ## 本日の内容
+
+-   Rについて
 
 -   データの読み込み
 
@@ -31,6 +29,26 @@ editor: visual
 -   データの可視化
 
 -   地理空間データ
+
+## Rとは
+
+-   統計計算とグラフィックのためのシステム
+
+-   言語と環境
+
+-   2万を超えるパッケージ
+
+    -   マニアックな統計計算もだいたいある
+
+## RStudio
+
+-   Posit社が開発している統合開発環境
+
+-   いろいろ便利
+
+## データ読み込みと可視化
+
+[![データサイエンスのモデル (Wickham H. et al. (2023) R for Data Science (2nd ed.), CC-BY-NC-ND 3.0)](images/base.png)](https://r4ds.hadley.nz/intro#fig-ds-diagram)
 
 ## データの読み込み (Import)
 
@@ -48,7 +66,7 @@ editor: visual
 
 -   tidyr, dplyrパッケージなど
 
--   整然データにする
+-   整然データ（行が観測、列が変数の形になっている）にする
 
 -   整然データを、利用目的に応じて変形する
 

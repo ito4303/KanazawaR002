@@ -117,6 +117,7 @@ head(city_data)
 #| label: font
 
 jp_font <- "YuGothic"
+# jp_font <- "Noto Sans JP"
 ```
 
 ### 折れ線グラフ
@@ -132,9 +133,9 @@ pref_data3 <- pref_data2 |>
   dplyr::filter(`地域` == "全国", `男女` == "総数")
 ```
 
-`ggplot`関数は、グラフのオブジェクトの初期化をおこなう関数です。`data`引数に、使用するデータの`pref_data3`を与えます。`mapping`引数には`` aes(x = `年`, y = `人口`) ``という関数の値を与えています。これにより、X軸に年、Y軸に人口をマッピングすると指定しています。
+`ggplot`関数は、グラフのオブジェクトの初期化をおこなう関数です。`data`引数に、使用するデータの`pref_data3`を与えます。`mapping`引数には`` aes(x = `年`, y = `人口`) ``という関数の値を与えています(aes = aesthetic mappings)。これにより、X軸に年、Y軸に人口をマッピングすると指定しています。
 
-ggplot2では、"+"演算子で、要素を追加していってグラフを完成させるようになっています。次の行の`geom_line`関数で折れ線グラフを描画します。
+ggplot2では、"+"演算子で、レイヤー（層）を追加していってグラフを完成させるようになっています。次の行の`geom_line`関数で折れ線グラフを描画します。
 
 ```{r}
 #| label: line1
@@ -165,7 +166,7 @@ ggplot(pref_data3, aes(x = `年`, y = `人口`)) +
 
 まず、`dplyr::filter`関数で全国のデータだけ残します。この関数の返り値をパイプ演算子で次の行の`ggplot`関数に渡しています。
 
-`ggplot`関数の`mapping`引数では、`aes関数`で`` colour = `男女` ``と引数を与えることで、`男女`列の要素別に色分けして線を引きます。また、`scale_colour_manual(values = c("black", "blue", "red"))`で、各要素の色を指定しています。
+`ggplot`関数の`mapping`引数では、`aes関数`で`` colour = `男女` ``と引数を与えることで、`男女`列の要素別に色分けして線を引きます。また、ggthemesパッケージの`scale_colour_manual`で、各要素の色を指定しています（カラーユニバーサルデザイン対応）。
 
 ```{r}
 #| label: line3
@@ -174,7 +175,7 @@ pref_data2 |>
   dplyr::filter(`地域` == "全国") |>
   ggplot(aes(x = `年`, y = `人口`, colour = `男女`)) +
   geom_line() + geom_point(size = 2.5) +
-  scale_colour_manual(values = c("black", "blue", "red")) +
+  scale_colour_manual(values = c("#000000", "#005aff", "#ff4b00")) +
   scale_x_continuous(breaks = seq(1920, 2020, 10)) +
   scale_y_continuous(name = "人口（人）",
                      breaks = seq(4e+7, 12e+7, 2e+7),
@@ -194,7 +195,7 @@ pref_data2 |>
   ggplot(aes(x = `年`, y = `人口`, colour = `男女`, 
              shape = `地域`, linetype = `地域`)) +
   geom_line() + geom_point(size = 2.5) +
-  scale_colour_manual(values = c("black", "blue", "red")) +
+  scale_colour_manual(values = c("#000000", "#005aff", "#ff4b00")) +
   scale_x_continuous(breaks = seq(1920, 2020, 10)) +
   scale_y_continuous(name = "人口（万人）",
                      limits = c(2e+5, 12e+5),
@@ -232,8 +233,8 @@ head(pref_data4, 10)
 pref_data4 |>
   dplyr::filter(`地域` %in% c("富山県", "石川県", "福井県")) |>
   ggplot() +
-  geom_area(aes(x = `年`, y = `女`), fill ="red") +
-  geom_ribbon(aes(x = `年`, ymin = `女`, ymax = `総数`), fill = "blue") +
+  geom_area(aes(x = `年`, y = `女`), fill ="#ff4b00") +
+  geom_ribbon(aes(x = `年`, ymin = `女`, ymax = `総数`), fill = "#005aff") +
   annotate("text", x = 2000, y = 3e+5, label = "女", color = "white") +
   annotate("text", x = 2000, y = 7.2e+5, label = "男", color = "white") +
   scale_x_continuous(breaks = seq(1920, 2020, 20)) +
@@ -368,7 +369,7 @@ pref_data2 |>
   theme_classic(base_family = jp_font)
 ```
 
-男女別の積み上げグラフにします。これには、`geom_col`関数の引数で`position = "stack"`とします（実はデフォルトです）。また、`scale_fill_manual(values = c("blue", "red"))`で色も指定します。
+男女別の積み上げグラフにします。これには、`geom_col`関数の引数で`position = "stack"`とします（実はデフォルトです）。また、`scale_fill_manual(values = c("#005aff", "#ff4b00"))`で色も指定します。
 
 ```{r}
 #| label: bar_plot5
@@ -378,7 +379,7 @@ pref_data2 |>
   dplyr::filter(`地域` != "全国", `男女` != "総数", `年` == 2020) |>
   ggplot(aes(x = `地域`, y = `人口`, fill = `男女`)) +
   geom_col(position = "stack") +
-  scale_fill_manual(values = c("blue", "red")) +
+  scale_fill_manual(values = c("#005aff", "#ff4b00")) +
   scale_x_discrete(limits = rev) +
   scale_y_continuous(name = "人口（万人）",
                      limits = c(0, 1.5e+7),
@@ -472,10 +473,10 @@ data <- data_g |>
 
 ggplot(data) +
   geom_sf() +
-  geom_sf_text(aes(label = name), size = 2.5, family = "Noto Sans JP") +
+  geom_sf_text(aes(label = name), size = 2.5, family = jp_font) +
   scale_x_continuous(breaks = seq(136.5, 137.5, 0.5)) +
   labs(x = "経度", y = "緯度") +
-  theme_bw(base_family = "Noto Sans JP")
+  theme_bw(base_family = jp_font)
 ```
 
 ### コロプレス図（塗り分け地図）
@@ -515,16 +516,16 @@ data_join <- dplyr::left_join(data, pop_data, by = "name")
 
 ggplot(data_join) +
   geom_sf(aes(fill = population)) +
-  geom_sf_text(aes(label = name), size = 2.5, family = "Noto Sans JP") +
+  geom_sf_text(aes(label = name), size = 2.5, family = jp_font) +
   scale_x_continuous(breaks = seq(136.5, 137.5, 0.5)) +
   scale_fill_gradient(name = "人口",
-                      low = "skyblue",
-                      high = "red",
+                      low = "#4dc4ff",
+                      high = "#ff4b00",
                       transform = "log",
                       limits = c(5e+3, 5e+5),
                       breaks = c(5e+3, 1e+4, 5e+4, 1e+5, 5e+5),
                       labels = c("5000", "1万", "5万",
                                  "10万", "50万")) +
   labs(x = NULL, y = NULL) +
-  theme_bw(base_family = "Noto Sans JP")
+  theme_bw(base_family = jp_font)
 ```
