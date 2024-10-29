@@ -68,7 +68,7 @@ pref_data
 
 読み込んだデータのうち、後で使うところだけを残します。これには、dplyrパッケージの`filter`関数と`mutate`関数を使用しています。前者で必要な行だけを残し、後者では、新しい列を作ったうえで、その他の列を捨てて（`.keep = "none"` ）います。
 
-また、ここでは、パイプ演算子("`|>`")を使用しています。これは、結果を次の関数の第1引数として与えるというものです。
+また、ここでは、パイプ演算子("`|>`")を使用しています。これは、式の計算結果を次の関数の第1引数として与えるというものです。
 
 ```{r}
 pref_data2 <- pref_data |>
@@ -228,15 +228,15 @@ head(pref_data4, 10)
 `geom_area`と`geom_ribbon`を組み合わせて使うことで、積み上げグラフにしています。また、`annotate`関数でグラフに直接説明を書き込んでいます。
 
 ```{r}
-#| label: line5
+#| label: stack
 
 pref_data4 |>
   dplyr::filter(`地域` %in% c("富山県", "石川県", "福井県")) |>
   ggplot() +
   geom_area(aes(x = `年`, y = `女`), fill ="#ff4b00") +
   geom_ribbon(aes(x = `年`, ymin = `女`, ymax = `総数`), fill = "#005aff") +
-  annotate("text", x = 2000, y = 3e+5, label = "女", color = "white") +
-  annotate("text", x = 2000, y = 7.2e+5, label = "男", color = "white") +
+  annotate("text", x = 2000, y = 3e+5, label = "女", colour = "white") +
+  annotate("text", x = 2000, y = 7.2e+5, label = "男", colour = "white") +
   scale_x_continuous(breaks = seq(1920, 2020, 20)) +
   scale_y_continuous(name = "人口（万人）",
                      limits = c(0, 12e+5),
