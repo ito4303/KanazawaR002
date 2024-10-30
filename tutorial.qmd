@@ -1,5 +1,6 @@
 ---
-title: "データの読み込みから可視化"
+title: "初心者チュートリアル資料"
+subtitle: "データの読み込みから可視化"
 author: "伊東宏樹"
 date: 2024-11-23
 lang: ja
@@ -14,15 +15,17 @@ editor: visual
 
 ## 内容
 
--   データ読み込み
+-   データの読み込み
 
 -   ggplot2による可視化
 
 -   地理空間データの読み込み
 
--   ggplot2による地理空間データの可視化
+-   地理空間データの可視化
 
-## 準備
+## データの読み込み
+
+### 準備
 
 tidyverse（メタ）パッケージを読み込みます。
 
@@ -32,7 +35,7 @@ tidyverse（メタ）パッケージを読み込みます。
 library(tidyverse)
 ```
 
-## データ
+### 読み込み
 
 データとして、国勢調査のデータを使用します。
 
@@ -56,7 +59,7 @@ pref_data <- read_csv(data_path,
                      locale = locale(encoding = "CP932"))
 ```
 
-### 読み込みの結果
+### 結果
 
 この段階で整然データ(tidy data)になっています。
 
@@ -64,7 +67,7 @@ pref_data <- read_csv(data_path,
 pref_data
 ```
 
-### 必要な部分を残す
+### 整形（必要な部分を残す）
 
 読み込んだデータのうち、後で使うところだけを残します。これには、dplyrパッケージの`filter`関数と`mutate`関数を使用しています。前者で必要な行だけを残し、後者では、新しい列を作ったうえで、その他の列を捨てて（`.keep = "none"` ）います。
 
@@ -81,7 +84,7 @@ pref_data2 <- pref_data |>
                 .keep = "none")
 ```
 
-### 結果
+### 整形結果
 
 必要な部分だけを残すと以下のようになりました。
 
@@ -107,7 +110,7 @@ city_data <- read_excel(excel_file_path, skip = 6)
 head(city_data)
 ```
 
-## 可視化
+## ggplot2による可視化
 
 ここからデータをグラフにして可視化していきます。そのためにここではggplot2を使用します。データには、先に読み込んだ都道府県の人口データを使用しました。
 
@@ -400,6 +403,7 @@ pref_data2 |>
 
 ```{r}
 #| label: read_shapefile_data
+#| output: false
 
 library(sf)
 
@@ -408,6 +412,8 @@ data_s <- st_read(shapefile)
 ```
 
 読み込んだデータを表示します。
+
+N03_002は北海道の振興局名、N03_003は郡名、N03_005は政令指定都市の行政区名なので、金沢市の行ではすべて欠損値(NA)になっています。
 
 ```{r}
 #| label: print_shapefile_data
@@ -421,6 +427,7 @@ print(data_s)
 
 ```{r}
 #| label: read_geojson_data
+#| output: false
 
 jsonfile <- file.path("data", "N03-20240101_17.geojson")
 data_g <- st_read(jsonfile)
@@ -434,7 +441,17 @@ data_g <- st_read(jsonfile)
 print(data_g)
 ```
 
-できたデータの`data_g`のクラスを確認しています。sfクラスに属していることがわかります。
+シェープファイルから読み込んだものと、GeoJSONから読み込んだものでは、なぜか座標参照系(CRS)が異なっている（前者がJGD2011、後者がWGS84）のですが、実用的には問題はないでしょう。
+
+```{r}
+st_crs(data_s)
+```
+
+```{r}
+st_crs(data_g)
+```
+
+できたデータの`data_g`のクラスを確認しています。sfクラス（と、data.frameクラス）に属していることがわかります。
 
 ```{r}
 #| label: class_geojson_data
@@ -453,7 +470,9 @@ ggplot(data_g) +
   geom_sf()
 ```
 
-データに含まれるポリゴンを市町村ごとにst_combine関数でまとめます。また、わかりやすいように、市区町村名のフィールドのN03_004を、nameという名前に変えておきます。
+この地図に、市区町村名を重ねて表示します。
+
+そのためまず、データに含まれるポリゴンを市町村ごとにst_combine関数でまとめます。また、わかりやすいように、市区町村名のフィールドのN03_004を、nameという名前に変えておきました。
 
 ```{r}
 #| label: st_combine
