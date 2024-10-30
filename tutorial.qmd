@@ -1,5 +1,6 @@
 ---
-title: "データの読み込みから可視化"
+title: "初心者チュートリアル資料"
+subtitle: "データの読み込みから可視化"
 author: "伊東宏樹"
 date: 2024-11-23
 lang: ja
@@ -14,15 +15,17 @@ editor: visual
 
 ## 内容
 
--   データ読み込み
+-   データの読み込み
 
 -   ggplot2による可視化
 
 -   地理空間データの読み込み
 
--   ggplot2による地理空間データの可視化
+-   地理空間データの可視化
 
-## 準備
+## データの読み込み
+
+### 準備
 
 tidyverse（メタ）パッケージを読み込みます。
 
@@ -32,7 +35,7 @@ tidyverse（メタ）パッケージを読み込みます。
 library(tidyverse)
 ```
 
-## データ
+### 読み込み
 
 データとして、国勢調査のデータを使用します。
 
@@ -56,7 +59,7 @@ pref_data <- read_csv(data_path,
                      locale = locale(encoding = "CP932"))
 ```
 
-### 読み込みの結果
+### 結果
 
 この段階で整然データ(tidy data)になっています。
 
@@ -64,11 +67,11 @@ pref_data <- read_csv(data_path,
 pref_data
 ```
 
-### 必要な部分を残す
+### 整形（必要な部分を残す）
 
 読み込んだデータのうち、後で使うところだけを残します。これには、dplyrパッケージの`filter`関数と`mutate`関数を使用しています。前者で必要な行だけを残し、後者では、新しい列を作ったうえで、その他の列を捨てて（`.keep = "none"` ）います。
 
-また、ここでは、パイプ演算子("`|>`")を使用しています。これは、結果を次の関数の第1引数として与えるというものです。
+また、ここでは、パイプ演算子("`|>`")を使用しています。これは、式の計算結果を次の関数の第1引数として与えるというものです。
 
 ```{r}
 pref_data2 <- pref_data |>
@@ -81,7 +84,7 @@ pref_data2 <- pref_data |>
                 .keep = "none")
 ```
 
-### 結果
+### 整形結果
 
 必要な部分だけを残すと以下のようになりました。
 
@@ -107,7 +110,7 @@ city_data <- read_excel(excel_file_path, skip = 6)
 head(city_data)
 ```
 
-## 可視化
+## ggplot2による可視化
 
 ここからデータをグラフにして可視化していきます。そのためにここではggplot2を使用します。データには、先に読み込んだ都道府県の人口データを使用しました。
 
@@ -117,6 +120,7 @@ head(city_data)
 #| label: font
 
 jp_font <- "YuGothic"
+# jp_font <- "Noto Sans JP"
 ```
 
 ### 折れ線グラフ
@@ -132,9 +136,9 @@ pref_data3 <- pref_data2 |>
   dplyr::filter(`地域` == "全国", `男女` == "総数")
 ```
 
-`ggplot`関数は、グラフのオブジェクトの初期化をおこなう関数です。`data`引数に、使用するデータの`pref_data3`を与えます。`mapping`引数には`` aes(x = `年`, y = `人口`) ``という関数の値を与えています。これにより、X軸に年、Y軸に人口をマッピングすると指定しています。
+`ggplot`関数は、グラフのオブジェクトの初期化をおこなう関数です。`data`引数に、使用するデータの`pref_data3`を与えます。`mapping`引数には`` aes(x = `年`, y = `人口`) ``という関数の値を与えています(aes = aesthetic mappings)。これにより、X軸に年、Y軸に人口をマッピングすると指定しています。
 
-ggplot2では、"+"演算子で、要素を追加していってグラフを完成させるようになっています。次の行の`geom_line`関数で折れ線グラフを描画します。
+ggplot2では、"+"演算子で、レイヤー（層）を追加していってグラフを完成させるようになっています。次の行の`geom_line`関数で折れ線グラフを描画します。
 
 ```{r}
 #| label: line1
@@ -165,7 +169,7 @@ ggplot(pref_data3, aes(x = `年`, y = `人口`)) +
 
 まず、`dplyr::filter`関数で全国のデータだけ残します。この関数の返り値をパイプ演算子で次の行の`ggplot`関数に渡しています。
 
-`ggplot`関数の`mapping`引数では、`aes関数`で`` colour = `男女` ``と引数を与えることで、`男女`列の要素別に色分けして線を引きます。また、`scale_colour_manual(values = c("black", "blue", "red"))`で、各要素の色を指定しています。
+`ggplot`関数の`mapping`引数では、`aes関数`で`` colour = `男女` ``と引数を与えることで、`男女`列の要素別に色分けして線を引きます。また、ggthemesパッケージの`scale_colour_manual`で、各要素の色を指定しています（カラーユニバーサルデザイン対応）。
 
 ```{r}
 #| label: line3
@@ -174,7 +178,7 @@ pref_data2 |>
   dplyr::filter(`地域` == "全国") |>
   ggplot(aes(x = `年`, y = `人口`, colour = `男女`)) +
   geom_line() + geom_point(size = 2.5) +
-  scale_colour_manual(values = c("black", "blue", "red")) +
+  scale_colour_manual(values = c("#000000", "#005aff", "#ff4b00")) +
   scale_x_continuous(breaks = seq(1920, 2020, 10)) +
   scale_y_continuous(name = "人口（人）",
                      breaks = seq(4e+7, 12e+7, 2e+7),
@@ -194,7 +198,7 @@ pref_data2 |>
   ggplot(aes(x = `年`, y = `人口`, colour = `男女`, 
              shape = `地域`, linetype = `地域`)) +
   geom_line() + geom_point(size = 2.5) +
-  scale_colour_manual(values = c("black", "blue", "red")) +
+  scale_colour_manual(values = c("#000000", "#005aff", "#ff4b00")) +
   scale_x_continuous(breaks = seq(1920, 2020, 10)) +
   scale_y_continuous(name = "人口（万人）",
                      limits = c(2e+5, 12e+5),
@@ -227,15 +231,15 @@ head(pref_data4, 10)
 `geom_area`と`geom_ribbon`を組み合わせて使うことで、積み上げグラフにしています。また、`annotate`関数でグラフに直接説明を書き込んでいます。
 
 ```{r}
-#| label: line5
+#| label: stack
 
 pref_data4 |>
   dplyr::filter(`地域` %in% c("富山県", "石川県", "福井県")) |>
   ggplot() +
-  geom_area(aes(x = `年`, y = `女`), fill ="red") +
-  geom_ribbon(aes(x = `年`, ymin = `女`, ymax = `総数`), fill = "blue") +
-  annotate("text", x = 2000, y = 3e+5, label = "女", color = "white") +
-  annotate("text", x = 2000, y = 7.2e+5, label = "男", color = "white") +
+  geom_area(aes(x = `年`, y = `女`), fill ="#ff4b00") +
+  geom_ribbon(aes(x = `年`, ymin = `女`, ymax = `総数`), fill = "#005aff") +
+  annotate("text", x = 2000, y = 3e+5, label = "女", colour = "white") +
+  annotate("text", x = 2000, y = 7.2e+5, label = "男", colour = "white") +
   scale_x_continuous(breaks = seq(1920, 2020, 20)) +
   scale_y_continuous(name = "人口（万人）",
                      limits = c(0, 12e+5),
@@ -368,7 +372,7 @@ pref_data2 |>
   theme_classic(base_family = jp_font)
 ```
 
-男女別の積み上げグラフにします。これには、`geom_col`関数の引数で`position = "stack"`とします（実はデフォルトです）。また、`scale_fill_manual(values = c("blue", "red"))`で色も指定します。
+男女別の積み上げグラフにします。これには、`geom_col`関数の引数で`position = "stack"`とします（実はデフォルトです）。また、`scale_fill_manual(values = c("#005aff", "#ff4b00"))`で色も指定します。
 
 ```{r}
 #| label: bar_plot5
@@ -378,7 +382,7 @@ pref_data2 |>
   dplyr::filter(`地域` != "全国", `男女` != "総数", `年` == 2020) |>
   ggplot(aes(x = `地域`, y = `人口`, fill = `男女`)) +
   geom_col(position = "stack") +
-  scale_fill_manual(values = c("blue", "red")) +
+  scale_fill_manual(values = c("#005aff", "#ff4b00")) +
   scale_x_discrete(limits = rev) +
   scale_y_continuous(name = "人口（万人）",
                      limits = c(0, 1.5e+7),
@@ -399,6 +403,7 @@ pref_data2 |>
 
 ```{r}
 #| label: read_shapefile_data
+#| output: false
 
 library(sf)
 
@@ -407,6 +412,8 @@ data_s <- st_read(shapefile)
 ```
 
 読み込んだデータを表示します。
+
+N03_002は北海道の振興局名、N03_003は郡名、N03_005は政令指定都市の行政区名なので、金沢市の行ではすべて欠損値(NA)になっています。
 
 ```{r}
 #| label: print_shapefile_data
@@ -420,6 +427,7 @@ print(data_s)
 
 ```{r}
 #| label: read_geojson_data
+#| output: false
 
 jsonfile <- file.path("data", "N03-20240101_17.geojson")
 data_g <- st_read(jsonfile)
@@ -433,7 +441,17 @@ data_g <- st_read(jsonfile)
 print(data_g)
 ```
 
-できたデータの`data_g`のクラスを確認しています。sf (= simple feature)クラスに属していることがわかります。
+シェープファイルから読み込んだものと、GeoJSONから読み込んだものでは、なぜか座標参照系(CRS)が異なっている（前者がJGD2011、後者がWGS84）のですが、実用的には問題はないでしょう。
+
+```{r}
+st_crs(data_s)
+```
+
+```{r}
+st_crs(data_g)
+```
+
+できたデータの`data_g`のクラスを確認しています。sfクラス（と、data.frameクラス）に属していることがわかります。
 
 ```{r}
 #| label: class_geojson_data
@@ -441,7 +459,7 @@ print(data_g)
 class(data_g)
 ```
 
-## 地理データの可視化
+## 地理空間データの可視化
 
 上で読み込んだデータをggplot2の`geom_sf`関数で表示してみます。
 
@@ -452,14 +470,16 @@ ggplot(data_g) +
   geom_sf()
 ```
 
-データに含まれるポリゴンを市町村ごとにst_union関数で結合します。また、わかりやすいように、市区町村名のフィールドのN03_004を、nameという名前に変えておきます。
+この地図に、市区町村名を重ねて表示します。
+
+そのためまず、データに含まれるポリゴンを市町村ごとにst_combine関数でまとめます。また、わかりやすいように、市区町村名のフィールドのN03_004を、nameという名前に変えておきました。
 
 ```{r}
-#| label: st_union
+#| label: st_combine
 
 data <- data_g |>
   dplyr::group_by(N03_004) |>
-  dplyr::summarise(geometry = st_union(geometry)) |>
+  dplyr::summarise(geometry = st_combine(geometry)) |>
   dplyr::ungroup() |>
   dplyr::rename(name = N03_004)
 ```
@@ -472,10 +492,10 @@ data <- data_g |>
 
 ggplot(data) +
   geom_sf() +
-  geom_sf_text(aes(label = name), size = 2.5, family = "Noto Sans JP") +
+  geom_sf_text(aes(label = name), size = 2.5, family = jp_font) +
   scale_x_continuous(breaks = seq(136.5, 137.5, 0.5)) +
   labs(x = "経度", y = "緯度") +
-  theme_bw(base_family = "Noto Sans JP")
+  theme_bw(base_family = jp_font)
 ```
 
 ### コロプレス図（塗り分け地図）
@@ -497,26 +517,34 @@ pop_data <- read_csv(pop_data_file, skip = 1,
   dplyr::filter(year == "2020年度")
 ```
 
+人口データを地理空間データに結合します。`left_join`は、`by`引数の変数をキーとして、左側のデータ(この例では`data`)を保存しつつ、右側のデータ(この例では`pop_data`)から共通のキーをもつ行を結合するという関数です。
+
+（この例では両方のデータが1対1対応するので、`left_join`でも`right_join`でも結果は変わりません。）
+
+```{r}
+#| label: join
+
+data_join <- dplyr::left_join(data, pop_data, by = "name")
+```
+
 2020年の総人口データを色で表現して、地図化しました。総人口は対数スケールにしています。
 
 ```{r}
 #| label: choropleth
 #| warning: false
 
-data |>
-  dplyr::left_join(pop_data, by = "name") |>
-ggplot() +
+ggplot(data_join) +
   geom_sf(aes(fill = population)) +
-  geom_sf_text(aes(label = name), size = 2.5, family = "Noto Sans JP") +
+  geom_sf_text(aes(label = name), size = 2.5, family = jp_font) +
   scale_x_continuous(breaks = seq(136.5, 137.5, 0.5)) +
   scale_fill_gradient(name = "人口",
-                      low = "skyblue",
-                      high = "red",
+                      low = "#4dc4ff",
+                      high = "#ff4b00",
                       transform = "log",
                       limits = c(5e+3, 5e+5),
                       breaks = c(5e+3, 1e+4, 5e+4, 1e+5, 5e+5),
                       labels = c("5000", "1万", "5万",
                                  "10万", "50万")) +
   labs(x = NULL, y = NULL) +
-  theme_bw(base_family = "Noto Sans JP")
+  theme_bw(base_family = jp_font)
 ```

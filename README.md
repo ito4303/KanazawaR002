@@ -13,6 +13,10 @@ Kanazawa.R #2 の発表資料です。
     -   FEH_00200521_241003100519.csv
     -   FEI_CITY_241027082628.csv
 
+-   以下のデータは[e-govデータポータル 人口総数：総務省『国勢調査』](https://data.e-gov.go.jp/data/dataset/cao_20150109_0014)からダウンロードしたものです。
+
+    -   file01.xls
+
 -   以下のファイルは[国土交通省国土数値情報ダウンロードサイト（行政区域データ）](https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-N03-2024.html)からダウンロードしたものです。
 
     -   N03-20240101_17.geojson
