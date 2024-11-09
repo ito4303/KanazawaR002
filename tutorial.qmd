@@ -53,10 +53,10 @@ read_csv関数では、このファイルパス(`data_path`)からファイル�
 #| label: read_csv
 
 data_path <- file.path("data", "FEH_00200521_241003100519.csv")
-pref_data <- read_csv(data_path,
-                     col_types = "fcfcfccccd",
-                     na = "-",
-                     locale = locale(encoding = "CP932"))
+pref_data <- read_csv(file = data_path,
+                      col_types = "fcfcfccccd",
+                      na = "-",
+                      locale = locale(encoding = "CP932"))
 ```
 
 ### 結果

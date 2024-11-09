@@ -40,7 +40,7 @@ editor: visual
 
 -   2万を超えるパッケージ
 
-    -   専門的な統計計算もだいたいある
+    -   専門的な統計的手法もだいたいある
 
 ## RStudio
 
@@ -58,8 +58,8 @@ editor: visual
 
 パッケージ利用で各種データファイルをRに読み込むことができる
 
--   CSV, TSV: readrパッケージ
--   Excel: readxlパッケージ
+-   CSV, TSV: readrパッケージなど
+-   Excel: readxlパッケージなど
 -   ODS: readODSパッケージ
 -   JSON: jsonliteパッケージ
 -   Parquet: arrowパッケージ
@@ -68,7 +68,7 @@ editor: visual
 
 ## データの整形 (Tidy)・変形 (Transform)
 
--   tidyr, dplyrパッケージなど
+-   tidyr, dplyrパッケージなど（tidyverseメタパッケージに含まれている）
 
 -   整然データにする
 
@@ -83,7 +83,7 @@ editor: visual
 
 グラフ作成のパッケージ
 
--   デフォルトのgraphicsパッケージ
+-   デフォルトのgraphicsパッケージ (base graphics)
 -   ggplot2パッケージ
 -   plotlyパッケージ
 
@@ -91,9 +91,11 @@ editor: visual
 
 ## 地理空間データ
 
--   [sf](https://cran.r-project.org/package=sf)パッケージ
+-   最近では、[**sf**](https://cran.r-project.org/package=sf)**パッケージ**を使うことが多い[^1]
 
-    -   [OGC simple feature access](https://www.ogc.org/publications/standard/sfa/)対応[^1]
+    -   GISデータ規格の[OGC simple feature access](https://www.ogc.org/publications/standard/sfa/)対応
+    -   読み込み対応
+        -   シェープファイル, GeoJSON, GPX, KMLなど
 
 [^1]: <https://notchained.hatenablog.com/entry/2017/01/06/213333>
 
