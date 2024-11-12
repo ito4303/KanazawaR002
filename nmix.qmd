@@ -84,6 +84,10 @@ plot(p)
 
 ## Nimbleによるモデリング
 
+-   マルコフ連鎖モンテカルロ (MCMC) 法によるベイズ推定
+
+-   BUGS言語でモデルを記述
+
 ```{r}
 #| label: nimble_code
 #| echo: true
@@ -134,4 +138,4 @@ p + geom_point(data = d_est, mapping = aes(x = site, y = n),
 
 ## 参考文献
 
-[生態学のための階層モデリング](https://www.kyoritsu-pub.co.jp/book/b10003301.html)
+-   [『生態学のための階層モデリング―RとBUGSによる分布・個体数量・種の豊かさの統計解析―』](https://www.kyoritsu-pub.co.jp/book/b10003301.html), Marc Kéry, J. Andrew Royle 著, 深谷肇一・飯島勇人・伊東宏樹 監訳, 共立出版, 2021年
