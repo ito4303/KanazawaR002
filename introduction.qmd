@@ -1,7 +1,11 @@
 ---
 title: "データの読み込みから可視化"
 author: "伊東宏樹"
-format: revealjs
+date: 2024-11-23
+format:
+  revealjs:
+    theme: [default, custom.scss]
+    slide-number: true
 embed-resources: true
 editor: visual
 ---
