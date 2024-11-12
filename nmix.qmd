@@ -2,15 +2,18 @@
 title: "不完全なカウントデータから動物の個体数を推定する"
 author: "伊東宏樹"
 date: 2024-11-23
-format: revealjs
-embed-resources: true
+format:
+  revealjs:
+    theme: [default, custom.scss]
+    slide-number: true
 editor: visual
+embed-resources: true
 ---
 
 ## 動物の個体数推定
 
 ::: incremental
--   目的の動物が何匹（頭・羽）いるのか ← 基本情報
+-   対象の動物が何匹（頭・羽）いるのか ← 基本情報
 
 -   カウント調査
 
@@ -31,7 +34,7 @@ $$
 Y_{ij} \sim \mathrm{Binomial}(N_i, p)
 $$
 
--   *N*~i~は、反復調査のあいだ変わらないことを仮定
+-   *N~i~*は、反復調査のあいだ変わらないことを仮定
 -   いないものを「発見」することや、ダブルカウントはないと仮定
 
 ```{r}
@@ -127,6 +130,8 @@ fit <- nimbleMCMC(code,
 ## 結果
 
 ```{r}
+#| label: results
+
 d_est <- data.frame(site = 1:50, n = summary(fit)$statistics[1:50, 1])
 p + geom_point(data = d_est, mapping = aes(x = site, y = n),
              size = 3, colour = "red") +
