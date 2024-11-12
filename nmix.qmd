@@ -1,0 +1,137 @@
+---
+title: "不完全なカウントデータから動物の個体数を推定する"
+author: "伊東宏樹"
+date: 2024-11-23
+format: revealjs
+embed-resources: true
+editor: visual
+---
+
+## 動物の個体数推定
+
+::: incremental
+-   目的の動物が何匹（頭・羽）いるのか ← 基本情報
+
+-   カウント調査
+
+-   しかし、動物はいても、必ず発見できるとは限らない
+
+-   不完全なカウントデータ
+:::
+
+## N-mixtureモデル
+
+反復調査（*j*回）により、実際の個体数(*N*~i,~ *i*はサイト)と、発見確率(*p*)を推定
+
+$$
+N_i \sim \mathrm{Poisson}(\lambda)
+$$
+
+$$
+Y_{ij} \sim \mathrm{Binomial}(N_i, p)
+$$
+
+-   *N*~i~は、反復調査のあいだ変わらないことを仮定
+-   いないものを「発見」することや、ダブルカウントはないと仮定
+
+```{r}
+#| label: setup
+
+library(unmarked)
+library(nimble)
+library(coda)
+library(ggplot2)
+data(birds)
+```
+
+## North American Breeding Bird Survey (BBS)
+
+-   北米繁殖鳥調査
+
+-   1960年代から続く大規模調査
+
+-   北米一帯で4000以上の調査ルート
+
+-   各調査ルートに50箇所サイト
+
+## モリツグミ
+
+![](images/20100208153413!Hylocichla_mustelina_FWS.jpg)
+
+## 1991年6月のBBSモリツグミデータ
+
+-   unmarkedパッケージのbirdsデータに含まれる`woodthrush`データフレーム
+
+-   50サイトで11回の反復調査
+
+```{r}
+colnames(woodthrush) <- 1:11
+print(woodthrush)
+```
+
+## グラフにすると
+
+```{r}
+#| label: data
+
+data <- data.frame(site = rep(1:nrow(woodthrush)), n = unlist(woodthrush))
+p <- ggplot(data, aes(x = site, y = n)) +
+  geom_jitter(width = 0.2, height = 0, size = 3, alpha = 0.3) +
+  labs(x = "サイト", y = "個体数") +
+  theme_bw(base_family = "Noto Sans JP", base_size = 18)
+plot(p)
+```
+
+## Nimbleによるモデリング
+
+```{r}
+#| label: nimble_code
+#| echo: true
+
+code <- nimbleCode({
+  for (i in 1:N_site) {
+    N[i] ~ dpois(exp(log_lambda))
+    for (j in 1:N_obs) {
+      Y[i, j] ~ dbinom(ilogit(logit_p), N[i])
+    }
+  }
+  log_lambda ~ dnorm(0, 1e-2)
+  logit_p ~ dnorm(0, 1e-2)
+})
+```
+
+```{r}
+#| label: run_nimble
+#| cache: true
+#| output: false
+
+init_fun <- function() {
+  list(N = apply(woodthrush, 1, max),
+       log_lambda = runif(1, -2, 2),
+       log_p = runif(1, -2, 2))
+}
+fit <- nimbleMCMC(code,
+                  constants = list(N_site = nrow(woodthrush),
+                                   N_obs = ncol(woodthrush)),
+                  data = list(Y = woodthrush),
+                  inits = init_fun,
+                  monitors = c("N", "log_lambda", "logit_p"),
+                  niter = 10000, nburnin = 2000, nchains = 3,
+                  samplesAsCodaMCMC = TRUE)
+```
+
+## 結果
+
+```{r}
+d_est <- data.frame(site = 1:50, n = summary(fit)$statistics[1:50, 1])
+p + geom_point(data = d_est, mapping = aes(x = site, y = n),
+             size = 3, colour = "red") +
+  annotate("text", x = 45, y = 6, size = 5, label = "● 推定値", 
+           family = "Noto Sans JP", colour = "red")+
+  annotate("text", x = 45, y = 5.5, size = 5, label = "● 観測値", 
+           family = "Noto Sans JP", colour = "gray25")
+```
+
+## 参考文献
+
+[生態学のための階層モデリング](https://www.kyoritsu-pub.co.jp/book/b10003301.html)
