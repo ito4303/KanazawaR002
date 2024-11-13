@@ -362,7 +362,7 @@ pref_data2 |>
   dplyr::filter(`地域` != "全国", `男女` == "総数", `年` == 2020) |>
   ggplot(aes(x = `地域`, y = `人口`)) +
   geom_col() +
-  scale_x_discrete(limits = rev) +
+  scale_x_discrete(name = "都道府県", limits = rev) +
   scale_y_continuous(name = "人口（万人）",
                      limits = c(0, 1.5e+7),
                      breaks = seq(0, 1.5e+7, 5e+6),
@@ -383,7 +383,7 @@ pref_data2 |>
   ggplot(aes(x = `地域`, y = `人口`, fill = `男女`)) +
   geom_col(position = "stack") +
   scale_fill_manual(values = c("#005aff", "#ff4b00")) +
-  scale_x_discrete(limits = rev) +
+  scale_x_discrete(name = "都道府県", limits = rev) +
   scale_y_continuous(name = "人口（万人）",
                      limits = c(0, 1.5e+7),
                      breaks = seq(0, 1.5e+7, 5e+6),
