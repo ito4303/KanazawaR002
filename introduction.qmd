@@ -112,7 +112,8 @@ editor: visual
 -   公式マニュアル
 -   参考文献
 -   コミュニティ
-    -   r-wakalang <https://r-wakalang.slack.com/>
+    -   Slack:r-wakalang 参加方法は <https://github.com/tokyor/r-wakalang>
+    -   mandaRa <https://scrapbox.io/mandaRa/>
 -   ChatGPT
 -   検索
 
