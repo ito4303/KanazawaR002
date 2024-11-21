@@ -32,8 +32,8 @@ set.seed(123)
 
 ## 統計モデルとは
 
--   変数間の関係を何らかの確率分布を使って（パーツとして）記述してモデルを作成する
--   作成したモデル（模型）でシステムを説明したり、予測したりする
+-   変数間の関係を何らかの確率分布を使って（パーツとして）記述して作成したモデル（模型）
+-   作成したモデルでシステムを説明したり、予測したりする
 
 ![](images/確率モデル.png){fig-align="center"}
 
@@ -50,7 +50,11 @@ $$
 ## 例題
 
 ::: {style="line-height: 125%;"}
-1000人に1人がかかる病気があるとする。検査をすると、この病気にかかっている場合には99%の確率で陽性となる。ただし、かかっていなくても5%の確率で誤って陽性になる。ある人が検査を受けて陽性になった。このとき実際にこの人がこの病気にかかっている確率は何パーセントか。
+1000人に1人がかかる病気があるとする。
+
+検査をすると、この病気にかかっている場合には99%の確率で陽性となる。ただし、かかっていなくても5%の確率で誤って陽性になる。
+
+ある人が検査を受けて陽性になった。このとき実際にこの人がこの病気にかかっている確率は何パーセントか。
 :::
 
 ## 答
@@ -124,9 +128,9 @@ ggplot() +
 
 ## MCMC
 
--   ベイズ統計モデルで、複雑な統計モデルのパラメータ推定に使われる。
+-   ベイズ統計モデルで、複雑な統計モデルのパラメータ推定に使われる
 
--   乱数を使って、事後分布からサンプリングしたと見なせるマルコフ連鎖を生成する。
+-   乱数を使って、一定のアルゴリズム（Metropolis-Hastings法, Gibbsサンプリング, Hamiltonian Monte Carlo法など）により、事後分布からサンプリングしたと見なせるマルコフ連鎖を生成する
 
 ## MCMCのソフトウェア
 
@@ -136,11 +140,13 @@ ggplot() +
 
 -   [Stan](https://mc-stan.org/)
 
-など。
+など
 
 いずれもRとは別のモデル記述言語で、モデルを記述する
 
 ## NIMBLEを使った統計モデリングの例
+
+## データ
 
 ```{r}
 #| label: data_gen
@@ -164,7 +170,7 @@ ggplot(df, aes(x = X, y = Y, colour = Group)) +
   theme_gray(base_size = 16)
 ```
 
-群ごとに切片が異なるが、群内では傾きはだいたい2くらいでどれも同程度。
+群ごとに切片が異なるが、群内では傾きはだいたい2くらいでどれも同程度
 
 ## 群を無視すると
 
@@ -246,7 +252,7 @@ traceplot(out[, 2])
 
 初期値の影響が残っている部分は捨てる
 
-## 実行
+## サンプリング
 
 ```{r}
 #| label: nimble_mcmc
@@ -259,7 +265,8 @@ out <- nimbleMCMC(code = code,
                                    Gind = as.numeric(df$Group)),
                   data = list(Y = df$Y, X = df$X),
                   inits = function() {
-                    list(alpha = runif(1, -2, 2), beta = runif(1, -2, 2),
+                    list(alpha = runif(1, -2, 2),
+                         beta = runif(1, -2, 2),
                     epsilon = runif(G, -2, 2),
                     sigma = runif(2, 0, 2))},
                   nchains = 3, niter = 12000, nburnin = 2000,
@@ -339,9 +346,7 @@ Stanで記述した同等のモデル。各パラメータの事前分布は弱�
 #| output.var: stanmodel
 ```
 
-## 実行
-
-MCMC計算の実行
+## 実行・サンプリング
 
 ```{r}
 #| label: run_stan
@@ -350,7 +355,9 @@ MCMC計算の実行
 #| cache: true
 
 fit <- stan(file = file.path("model", "lme.stan"),
-            data = list(N = nrow(df), G = G, Gind = as.numeric(df$Group),
+            data = list(N = nrow(df),
+                        G = G,
+                        Gind = as.numeric(df$Group),
                         X = df$X, Y = df$Y),
             pars = c("alpha", "beta", "sigma"),
             iter = 2000, warmup = 1000)
