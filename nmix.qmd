@@ -1,5 +1,6 @@
 ---
 title: "不完全なカウントデータから動物の個体数を推定する"
+subtitle: "Kanazawa.R #2"
 author: "伊東宏樹"
 date: 2024-11-23
 format:

@@ -1,5 +1,6 @@
 ---
 title: "ベイズ統計モデリングとMCMC"
+subtitle: "Kanazawa.R #2"
 author: "伊東宏樹"
 date: 2024-11-23
 format:
