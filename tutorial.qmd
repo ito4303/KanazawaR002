@@ -169,7 +169,7 @@ ggplot(pref_data3, aes(x = `年`, y = `人口`)) +
 
 まず、`dplyr::filter`関数で全国のデータだけ残します。この関数の返り値をパイプ演算子で次の行の`ggplot`関数に渡しています。
 
-`ggplot`関数の`mapping`引数では、`aes関数`で`` colour = `男女` ``と引数を与えることで、`男女`列の要素別に色分けして線を引きます。また、ggthemesパッケージの`scale_colour_manual`で、各要素の色を指定しています（カラーユニバーサルデザイン対応）。
+`ggplot`関数の`mapping`引数では、`aes関数`で`` colour = `男女` ``と引数を与えることで、`男女`列の要素別に色分けして線を引きます。また、`scale_colour_manual`で各要素の色を指定しています（カラーユニバーサルデザイン対応）。
 
 ```{r}
 #| label: line3
