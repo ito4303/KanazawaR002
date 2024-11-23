@@ -50,9 +50,7 @@ editor: visual
 
 -   Posit社が開発している統合開発環境
 
--   <https://posit.co/products/open-source/rstudio/>
-
--   いろいろ便利
+[![(Posit: RStudio IDE)](images/RStudio.png){style="border: 1px solid blue; border-radius: 4px; padding: 8px; box-shadow: 5px 5px 10px black;" width="684"}](https://posit.co/downloads/)
 
 ## データ読み込みと可視化
 
@@ -88,8 +86,9 @@ editor: visual
 グラフ作成のパッケージ
 
 -   デフォルトのgraphicsパッケージ (base graphics)
--   ggplot2パッケージ
--   plotlyパッケージ
+-   [ggplot2](https://ggplot2.tidyverse.org/)パッケージ
+-   [plotly](https://plotly.com/r/)パッケージ
+-   [tidyplots](https://jbengler.github.io/tidyplots/reference/)パッケージ
 
 など
 

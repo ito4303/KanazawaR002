@@ -17,7 +17,7 @@ library(ggplot2)
 library(purrr)
 library(nimble)
 library(coda)
-set.seed(123)
+set.seed(1123)
 ```
 
 ## 内容
@@ -69,11 +69,13 @@ $$
 
 -   事前確率を、得られたデータで更新していく
 
--   確率分布を推定するときは、事前分布→事後分布
+-   確率分布を推定するとき
+
+    -   事前分布→データで更新→事後分布
 
 ## MCMC（マルコフ連鎖モンテカルロ）法とは
 
--   モデルのパラメータを推定する手法
+-   統計モデルのパラメータを推定する手法
 
 -   MCMC = MC（マルコフ連鎖） + MC（モンテカルロ）
 
@@ -130,7 +132,11 @@ ggplot() +
 
 -   ベイズ統計モデルで、複雑な統計モデルのパラメータ推定に使われる
 
+    -   解析的に解けない複雑なモデルのパラメータも推定できる
+
 -   乱数を使って、一定のアルゴリズム（Metropolis-Hastings法, Gibbsサンプリング, Hamiltonian Monte Carlo法など）により、事後分布からサンプリングしたと見なせるマルコフ連鎖を生成する
+
+-   短所: 計算に時間がかかる
 
 ## MCMCのソフトウェア
 
@@ -151,8 +157,7 @@ ggplot() +
 ```{r}
 #| label: data_gen
 
-set.seed(12)
-
+slope <- 2
 G <- 8
 N <- 20
 G_index <- rep(seq_len(G), each = N)
@@ -161,7 +166,7 @@ X <- map(seq_len(G),
 ranef <- rnorm(G, 0, 1) |>
   sort()
 Y <- map(seq_len(G),
-         \(i) 2 * X[[i]] + ranef[i] + rnorm(N, 0, 1))
+         \(i) slope * X[[i]] + ranef[i] + rnorm(N, 0, 1))
 df <- data.frame(X = unlist(X), Y = unlist(Y), Group = factor(G_index))
 
 ggplot(df, aes(x = X, y = Y, colour = Group)) +
@@ -245,6 +250,8 @@ out <- nimbleMCMC(code = code,
 `beta`のマルコフ連鎖の軌跡
 
 ```{r}
+#| label: traceplot_beta
+
 traceplot(out[, 2])
 ```
 
@@ -278,6 +285,7 @@ out <- nimbleMCMC(code = code,
 マルコフ連鎖の軌跡プロット（codaパッケージのtraceplot関数を使用）
 
 ```{r}
+#| label: traceplot_alpha
 #| echo: true
 
 traceplot(out[, "alpha"])
@@ -286,16 +294,20 @@ traceplot(out[, "alpha"])
 ## traceplot (sigma\[1\])
 
 ```{r}
+#| label: traceplot_sigma1
 #| echo: true
 
 traceplot(out[, "sigma[1]"])
 ```
+
+これくらいよく混ざっているのが望ましい
 
 ## R-hat
 
 MCMC計算が収束したかどうかの指標値。1.1以下ならOKとする場合が多い。
 
 ```{r}
+#| labe: rhat
 #| echo: true
 
 gelman.diag(out)
@@ -306,14 +318,18 @@ gelman.diag(out)
 結果の要約
 
 ```{r}
+#| label: summary_nimble
 #| echo: true
 
 summary(out)
 ```
 
+傾き(`beta`)の事後平均値は2に近い値に推定された
+
 ## 密度グラフ
 
 ```{r}
+#| label: densplot
 #| echo: true
 
 densplot(out[, "beta"])
@@ -368,7 +384,7 @@ fit <- stan(file = file.path("model", "lme.stan"),
 各パラメータの事後分布の要約
 
 ```{r}
-#| label: stan_results
+#| label: stan_summary
 
 summary(fit)$summary
 ```
